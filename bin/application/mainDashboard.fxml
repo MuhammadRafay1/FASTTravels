@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="475.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainDashboardController">
+   <children>
+      <Separator layoutX="179.0" layoutY="63.0" orientation="VERTICAL" prefHeight="409.0" prefWidth="6.0" />
+      <Separator layoutX="-1.0" layoutY="57.0" prefHeight="2.0" prefWidth="750.0" />
+      <Label layoutX="67.0" layoutY="10.0" prefHeight="38.0" prefWidth="198.0" text="User Dashboard">
+         <font>
+            <Font name="Impact" size="30.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="50.0" fitWidth="55.0" layoutX="7.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@pngwing.com.png" />
+         </image>
+      </ImageView>
+      <Button layoutX="4.0" layoutY="65.0" mnemonicParsing="false" onAction="#goToViewModifyProfile" prefHeight="46.0" prefWidth="167.0" text="View/Manage Profile" />
+      <Button layoutX="4.0" layoutY="117.0" mnemonicParsing="false" onAction="#goToBookTickets" prefHeight="46.0" prefWidth="167.0" text="Book Tickets" />
+      <Button fx:id="modifyBookingButton" layoutX="4.0" layoutY="169.0" mnemonicParsing="false" onAction="#goToModifyBooking" prefHeight="46.0" prefWidth="167.0" text="Modify Bookings" />
+      <Button fx:id="lpButton" layoutX="4.0" layoutY="220.0" mnemonicParsing="false" onAction="#goToLoyaltyPoints" prefHeight="46.0" prefWidth="167.0" text="Loyalty Points" />
+      <Button layoutX="3.0" layoutY="271.0" mnemonicParsing="false" onAction="#goToComplain" prefHeight="46.0" prefWidth="167.0" text="Complaints Management" />
+      <Button layoutX="3.0" layoutY="322.0" mnemonicParsing="false" onAction="#goToPreferences" prefHeight="46.0" prefWidth="167.0" text="Set Travel Preferences" />
+      <Button fx:id="THButton" layoutX="3.0" layoutY="373.0" mnemonicParsing="false" onAction="#goToTravel" prefHeight="46.0" prefWidth="167.0" text="Travel History" />
+      <Button fx:id="cargoDelivery" layoutX="3.0" layoutY="424.0" mnemonicParsing="false" onAction="#goToCargoBooking" prefHeight="45.0" prefWidth="167.0" text="Cargo Delivery" />
+      <ImageView fitHeight="299.0" fitWidth="299.0" layoutX="425.0" layoutY="128.0" opacity="0.2" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@background.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="adimg1" fitHeight="376.0" fitWidth="210.0" layoutX="195.0" layoutY="84.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@ad1.png" />
+         </image>
+      </ImageView>
+      <Button fx:id="logoutButton" layoutX="626.0" layoutY="4.0" mnemonicParsing="false" onAction="#goToLogin" prefHeight="46.0" prefWidth="112.0" text="Log Out" />
+   </children>
+   <stylesheets>
+      <URL value="@button.css" />
+      <URL value="@mainDashboardCss.css" />
+   </stylesheets>
+</AnchorPane>

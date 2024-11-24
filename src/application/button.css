@@ -1,0 +1,16 @@
+/* JavaFX button styles */
+.button {
+    -fx-background-color: blue; /* Default background color */
+    -fx-text-fill: white; /* Text color */
+    -fx-padding: 10px 10px; /* Add padding */
+    -fx-font-size: 12px; /* Font size */
+    -fx-background-radius: 5; /* Rounded corners */
+    -fx-cursor: hand; /* Change cursor to pointer */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 2, 0.5, 0, 1); /* Optional shadow effect */
+    -fx-transition: 0.6s ease; /* Smooth transition (JavaFX ignores this but can animate with code) */
+}
+
+/* Hover effect */
+.button:hover {
+    -fx-background-color: darkblue; /* Background color on hover */
+}

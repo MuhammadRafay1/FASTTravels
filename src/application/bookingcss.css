@@ -1,0 +1,105 @@
+/* General Styling for Buttons */
+.button {
+    -fx-background-color: #0056D2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+}
+
+.button:hover {
+    -fx-background-color: #003D99;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 4, 0.0, 0, 2);
+}
+
+/* ChoiceBox Styling */
+.choice-box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #0056D2;
+    -fx-border-radius: 5;
+    -fx-padding: 5;
+    -fx-font-size: 14px;
+}
+
+.choice-box:hover {
+    -fx-border-color: #003D99;
+}
+
+/* TextField Styling */
+.text-field {
+    -fx-background-color: #F3F4F6;
+    -fx-border-color: #0056D2;
+    -fx-border-radius: 5;
+    -fx-padding: 5;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused {
+    -fx-border-color: #003D99;
+    -fx-background-color: #FFFFFF;
+}
+
+/* DatePicker Styling */
+.date-picker {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #0056D2;
+    -fx-border-radius: 5;
+    -fx-padding: 5;
+    -fx-font-size: 14px;
+}
+
+.date-picker:focused {
+    -fx-border-color: #003D99;
+}
+
+/* Label Styling */
+.label {
+    -fx-text-fill: #333333;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+#headingLabel {
+    -fx-text-fill: #333333;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+/* TabPane and Tabs Styling */
+.tab-pane {
+    -fx-tab-min-width: 100px;
+    -fx-tab-max-width: 120px;
+    -fx-tab-min-height: 30px;
+    -fx-tab-max-height: 30px;
+    -fx-background-color: #F3F4F6;
+
+}
+
+.tab {
+    -fx-font-size: 14px;
+    -fx-background-color: #E9ECF0;
+}
+
+.tab:hover {
+    -fx-background-color: #C7D0E4;
+}
+
+.tab:selected {
+    -fx-background-color: #0056D2;
+    -fx-text-fill: white;
+}
+
+/* Back to Menu Button */
+#goToMainDashboard {
+    -fx-background-color: #FF5733;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15;
+    -fx-padding: 10;
+}
+
+#goToMainDashboard:hover {
+    -fx-background-color: #C13E23;
+}
+
+

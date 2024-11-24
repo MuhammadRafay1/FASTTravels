@@ -1,0 +1,74 @@
+/* General styles for the root */
+.root {
+    -fx-background-color: #f9f9f9; /* Light background */
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Title styles */
+.label {
+    -fx-font-size: 24px; /* Increase title size */
+    -fx-font-weight: bold;
+    -fx-text-fill: #003366; /* Deep blue color */
+    -fx-alignment: center;
+}
+
+.subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #666666; /* Gray color */
+    -fx-alignment: center;
+    -fx-font-style: italic;
+}
+
+/* Styling for TextFields */
+.text-field {
+    -fx-pref-width: 250px;
+    -fx-pref-height: 40px;
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+    -fx-font-size: 14px;
+}
+
+/* Placeholder text in TextFields */
+.text-field:focused {
+    -fx-border-color: #0056b3; /* Light blue on focus */
+    -fx-border-width: 2px;
+}
+
+/* Buttons */
+.button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: #0056b3; /* Primary blue color */
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-pref-width: 100px;
+    -fx-pref-height: 40px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+}
+
+/* Hover effect for buttons */
+.button:hover {
+    -fx-background-color: #003366; /* Darker blue on hover */
+    -fx-cursor: hand;
+}
+
+/* Register button styles */
+.register-button {
+    -fx-background-color: #f9f9f9; /* White */
+    -fx-text-fill: #0056b3; /* Blue text */
+    -fx-border-color: #0056b3;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.register-button:hover {
+    -fx-background-color: #0056b3; /* Blue background */
+    -fx-text-fill: white; /* White text on hover */
+}
+
+
