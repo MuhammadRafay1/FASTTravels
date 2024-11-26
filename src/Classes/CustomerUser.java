@@ -18,11 +18,7 @@ public class CustomerUser extends User {
 //        this.travelHistory = new ArrayList<>();
     }
 
-    @Override
-    public void updateProfile(String newEmail) {
-        this.email = newEmail;
-        System.out.println("Customer profile updated.");
-    }
+
 
     public void updateContact(String newPhone) {
         this.phone = newPhone;

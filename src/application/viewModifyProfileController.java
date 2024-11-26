@@ -11,114 +11,97 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.*;
 
-import application.LoginController;
+import Classes.User;
+import databaseControllers.userDatabaseHandler;
 public class viewModifyProfileController {
-	
-	    @FXML
-	    private TextField cnicTb;
 
-	    @FXML
-	    private Button commitChangesButton;
+    @FXML
+    private TextField cnicTb;
 
-	    @FXML
-	    private TextField emailTb;
+    @FXML
+    private Button commitChangesButton;
 
-	    @FXML
-	    private TextField pNumTb;
+    @FXML
+    private TextField emailTb;
 
-	    @FXML
-	    private TextField userIDTb;
+    @FXML
+    private TextField pNumTb;
 
-	    @FXML
-	    private TextField usernameTB;
-	    
-	    @FXML
-	    private Button viewSavedInfoButton;
-	    
-	    private int currentUserID; // Store the user ID for the currently displayed user
+    @FXML
+    private TextField userIDTb;
 
-	    // Method to populate the form with user data
-	    public void loadUserData(ActionEvent event) throws IOException {
-	        this.currentUserID = LoginController.userID;
+    @FXML
+    private TextField usernameTB;
 
-	        // SQL Query to fetch user data by ID
-	        String query = "SELECT * FROM User WHERE userID = ?";
-	        try (Connection conn = DatabaseHandler.connect();
-	             PreparedStatement stmt = conn.prepareStatement(query)) {
-	        	currentUserID = SessionManager.getInstance().getUserID();
-	        	System.out.println("Logged-in User ID: " + currentUserID);
-	            stmt.setInt(1,currentUserID);
-	            ResultSet rs = stmt.executeQuery();
-	            if (rs.next()) {
-	                System.out.println("Name: " + rs.getString("name"));
-	                System.out.println("Email: " + rs.getString("email"));
-	            	userIDTb.setText(String.valueOf(rs.getInt("userID")));
-	            	usernameTB.setText(rs.getString("name"));
-	            	emailTb.setText(rs.getString("email"));
-	            	cnicTb.setText(rs.getString("cnic"));
-	            	pNumTb.setText(rs.getString("phone"));
-	            }
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	            showAlert("Error", "Failed to load user data: " + e.getMessage());
-	        }
-	    }
-	    
-	    @FXML
-	    public void onSave(ActionEvent event) {
-	        String name = usernameTB.getText();
-	        String email = emailTb.getText();
-	        String cnic = cnicTb.getText();
-	        String phone = pNumTb.getText();
+    @FXML
+    private Button viewSavedInfoButton;
 
-	        // SQL Query to update user data
-	        String query = "UPDATE User SET name = ?, email = ?,  cnic = ?, phone = ? WHERE userID = ?";
-	        try (Connection conn = DatabaseHandler.connect();
-	             PreparedStatement stmt = conn.prepareStatement(query)) {
-	            stmt.setString(1, name);
-	            stmt.setString(2, email);
-	            stmt.setString(3, cnic);
-	            stmt.setString(4, phone);
-	            stmt.setInt(5, currentUserID);
+    private int currentUserID;
 
-	            int rowsUpdated = stmt.executeUpdate();
-	            if (rowsUpdated > 0) {
-	                showAlert("Success", "User data updated successfully!");
-	            } else {
-	                showAlert("Error", "Failed to update user data.");
-	            }
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	            showAlert("Error", "Failed to update user data: " + e.getMessage());
-	        }
-	    }
-	    
-	    @FXML
-	    public void goToMainDashboard(ActionEvent event) throws IOException {
-	        try {
-	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("mainDashboard.fxml"));
-	            
-	            // Get the current stage and set the new scene
-	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-	            Scene scene = new Scene(root);
-	            stage.setScene(scene);
-	            stage.show();
-	        } catch (IOException e) {
-	            System.err.println("Error loading mainDashboard.fxml: " + e.getMessage());
-	            e.printStackTrace();
-	        }
-	    }
+    private userDatabaseHandler userdbHandler = new userDatabaseHandler();
 
-	    // Utility method to show an alert
-	    private void showAlert(String title, String message) {
-	        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-	        alert.setTitle(title);
-	        alert.setHeaderText(null);
-	        alert.setContentText(message);
-	        alert.showAndWait();
-	    }
+    // Method to populate the form with user data
+    public void loadUserData(ActionEvent event) throws IOException {
+        currentUserID = SessionManager.getInstance().getUserID();
 
+        // Fetch user data from DatabaseHandler
+        User user = userdbHandler.getUserByID(currentUserID);
+        if (user != null) {
+            populateFields(user);
+        } else {
+            showAlert("Error", "Failed to load user data.");
+        }
+    }
+
+    // Method to save user data
+    @FXML
+    public void onSave(ActionEvent event) {
+        User user = new User();
+        user.setUserID(currentUserID);
+        user.setName(usernameTB.getText());
+        user.setEmail(emailTb.getText());
+        user.setCnic(cnicTb.getText());
+        user.setPhone(pNumTb.getText());
+
+        boolean isUpdated = userdbHandler.updateUser(user);
+        if (isUpdated) {
+            showAlert("Success", "User data updated successfully!");
+        } else {
+            showAlert("Error", "Failed to update user data.");
+        }
+    }
+
+    // Navigate to the main dashboard
+    @FXML
+    public void goToMainDashboard(ActionEvent event) throws IOException {
+        try {
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/mainDashboard.fxml"));
+            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Error loading mainDashboard.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Utility method to populate fields with user data
+    private void populateFields(User user) {
+        userIDTb.setText(String.valueOf(user.getUserID()));
+        usernameTB.setText(user.getName());
+        emailTb.setText(user.getEmail());
+        cnicTb.setText(user.getCnic());
+        pNumTb.setText(user.getPhone());
+    }
+
+    // Utility method to show an alert
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 }

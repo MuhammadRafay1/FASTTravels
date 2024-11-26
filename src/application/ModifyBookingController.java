@@ -18,8 +18,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
-public class ModifyBookingController {
+import databaseControllers.*
+;public class ModifyBookingController {
 
     @FXML
     private ChoiceBox<Integer> allCargoTravelBookingCB;
@@ -76,6 +76,7 @@ public class ModifyBookingController {
     private DatePicker travelDatePicker;
     
     private final DatabaseHandler dbHandler = new DatabaseHandler();
+    private final BookingDatabaseHandler dbBookingHandler = new BookingDatabaseHandler();
      int userID = SessionManager.getInstance().getUserID();
     // Load all bookings for the user into the choice boxes
      @FXML
@@ -99,13 +100,13 @@ public class ModifyBookingController {
      }
 
     private void loadTravelBookings() {
-        Map<Integer, String> travelBookings = dbHandler.getAllTravelBookingsForUser(userID); // Replace 1 with logged-in user ID
+        Map<Integer, String> travelBookings = dbBookingHandler.getAllTravelBookingsForUser(userID); // Replace 1 with logged-in user ID
         ObservableList<Integer> travelBookingIDs = FXCollections.observableArrayList(travelBookings.keySet());
         allTravelBookingCB.setItems(travelBookingIDs);
     }
 
     private void loadCargoBookings() {
-        Map<Integer, String> cargoBookings = dbHandler.getAllCargoBookingsForUser(userID); // Replace 1 with logged-in user ID
+        Map<Integer, String> cargoBookings = dbBookingHandler.getAllCargoBookingsForUser(userID); // Replace 1 with logged-in user ID
         ObservableList<Integer> cargoBookingIDs = FXCollections.observableArrayList(cargoBookings.keySet());
         allCargoTravelBookingCB.setItems(cargoBookingIDs);
     }
@@ -113,7 +114,7 @@ public class ModifyBookingController {
     // Populate travel booking fields when a booking is selected
     private void onTravelBookingSelected(Integer bookingID) {
         if (bookingID != null) {
-            Map<String, String> bookingDetails = dbHandler.getTravelBookingDetails(bookingID);
+            Map<String, String> bookingDetails = dbBookingHandler.getTravelBookingDetails(bookingID);
             if (bookingDetails != null) {
                 sourceTB.setText(bookingDetails.getOrDefault("origin", ""));
                 destinationTb.setText(bookingDetails.getOrDefault("destination", ""));
@@ -128,7 +129,7 @@ public class ModifyBookingController {
 
     private void onCargoBookingSelected(Integer cargoBookingID) {
         if (cargoBookingID != null) {
-            Map<String, String> bookingDetails = dbHandler.getCargoBookingDetails(cargoBookingID);
+            Map<String, String> bookingDetails = dbBookingHandler.getCargoBookingDetails(cargoBookingID);
             if (bookingDetails != null) {
                 cargoSourceTB.setText(bookingDetails.getOrDefault("origin", ""));
                 cargoDestinationTb.setText(bookingDetails.getOrDefault("destination", ""));
@@ -148,7 +149,7 @@ public class ModifyBookingController {
         LocalDate newDate = travelDatePicker.getValue();
 
         if (bookingID != null && newDate != null) {
-            dbHandler.updateTravelBookingDate(bookingID, newDate);
+        	dbBookingHandler.updateTravelBookingDate(bookingID, newDate);
             showAlert(Alert.AlertType.INFORMATION, "Success", "Booking date updated successfully.");
             loadTravelBookings();
         } else {
@@ -163,7 +164,7 @@ public class ModifyBookingController {
         LocalDate newDate = cargoDatePicker.getValue();
 
         if (cargoBookingID != null && newDate != null) {
-            dbHandler.updateCargoBookingDate(cargoBookingID, newDate);
+        	dbBookingHandler.updateCargoBookingDate(cargoBookingID, newDate);
             showAlert(Alert.AlertType.INFORMATION, "Success", "Cargo booking date updated successfully.");
             loadCargoBookings();
         } else {
@@ -176,7 +177,7 @@ public class ModifyBookingController {
     private void cancelTravelBooking() {
         Integer bookingID = allTravelBookingCB.getValue();
         if (bookingID != null) {
-            dbHandler.deleteTravelBooking(bookingID);
+        	dbBookingHandler.deleteTravelBooking(bookingID);
             showAlert(Alert.AlertType.INFORMATION, "Success", "Booking canceled successfully.");
             loadTravelBookings();
         } else {
@@ -189,7 +190,7 @@ public class ModifyBookingController {
     private void cancelCargoBooking() {
         Integer cargoBookingID = allCargoTravelBookingCB.getValue();
         if (cargoBookingID != null) {
-            dbHandler.deleteCargoBooking(cargoBookingID);
+        	dbBookingHandler.deleteCargoBooking(cargoBookingID);
             showAlert(Alert.AlertType.INFORMATION, "Success", "Cargo booking canceled successfully.");
             loadCargoBookings();
         } else {
@@ -209,7 +210,7 @@ public class ModifyBookingController {
     public void goToMainDashboard(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("mainDashboard.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/mainDashboard.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

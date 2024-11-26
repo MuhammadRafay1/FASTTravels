@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import databaseControllers.DatabaseHandler;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -37,7 +38,7 @@ public class TravelPreferenceController {
 	    public void goToMainDashboard(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("mainDashboard.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/mainDashboard.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

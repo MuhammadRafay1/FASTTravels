@@ -17,7 +17,7 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         try {
             // Load the FXML file for the login page
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmlFiles/login.fxml"));
             Parent root = loader.load();
 
             // Set up the scene with the login page UI

@@ -17,7 +17,7 @@ public class MainDashboardController {
     public void goToLogin(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("login.fxml"));    
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/login.fxml"));    
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);
@@ -33,7 +33,7 @@ public class MainDashboardController {
     public void goToBookTickets(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("bookTicekts.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/bookTicekts.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -50,7 +50,7 @@ public class MainDashboardController {
     public void goToComplain(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("UserSubmitcomplaints.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/UserSubmitcomplaints.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -67,7 +67,7 @@ public class MainDashboardController {
     public void goToViewModifyProfile(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("viewModifyProfile.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/viewModifyProfile.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -84,7 +84,7 @@ public class MainDashboardController {
     public void goToTravel(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("TravelHistory.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/TravelHistory.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -101,7 +101,7 @@ public class MainDashboardController {
     public void goToLoyaltyPoints(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("LoyaltyPoints.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/LoyaltyPoints.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -119,7 +119,7 @@ public class MainDashboardController {
     public void goToCargoBooking(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("cargoBooking.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/cargoBooking.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -136,7 +136,7 @@ public class MainDashboardController {
     public void goToPreferences(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("Preference.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/Preference.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -153,7 +153,7 @@ public class MainDashboardController {
     public void goToModifyBooking(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("modifyBooking.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/modifyBooking.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

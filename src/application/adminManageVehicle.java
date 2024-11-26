@@ -2,7 +2,6 @@ package application;
 
 import java.io.IOException;
 
-import application.DatabaseHandler;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import databaseControllers.*;
 
 public class adminManageVehicle {
 	
@@ -48,12 +48,12 @@ public class adminManageVehicle {
     private TextField vehicletypeTB;
     
     private DatabaseHandler dbController = new DatabaseHandler();
-
+    private VehicleRouteDatabaseHandler dbVehicleRouteController = new VehicleRouteDatabaseHandler();
     // Load available routes in the text area
     @FXML
     public void initialize() {
         // Fetch and display available routes when the page loads
-        String allRoutes = dbController.getAllRoutes();
+        String allRoutes = dbVehicleRouteController.getAllRoutes();
         allRoutesTA.setText(allRoutes);
     }
 
@@ -70,7 +70,7 @@ public class adminManageVehicle {
             return;
         }
 
-        boolean success = dbController.addVehicle(companyName, routeID, seatingCapacity, vehicleType);
+        boolean success = dbVehicleRouteController.addVehicle(companyName, routeID, seatingCapacity, vehicleType);
 
         if (success) {
             showAlert("Success", "Vehicle added successfully.");
@@ -89,7 +89,7 @@ public class adminManageVehicle {
             return;
         }
 
-        boolean success = dbController.deleteVehicle(vehicleID);
+        boolean success = dbVehicleRouteController.deleteVehicle(vehicleID);
 
         if (success) {
             showAlert("Success", "Vehicle deleted successfully.");
@@ -104,7 +104,7 @@ public class adminManageVehicle {
     public void backToMenu(ActionEvent event) throws IOException {
     	try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("AdminDashboard.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminDashboard.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

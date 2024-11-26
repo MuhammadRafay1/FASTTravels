@@ -13,6 +13,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import Classes.User;
+import databaseControllers.DatabaseHandler;
+import databaseControllers.userDatabaseHandler;
 
 public class LoginController {
     @FXML private TextField usernameTb;
@@ -23,14 +25,14 @@ public class LoginController {
 
     private DatabaseHandler dbHandler = new DatabaseHandler();
     public static int userID;  // To store the userID
-   
+    private userDatabaseHandler dbUserHandler = new userDatabaseHandler();
     
     @FXML
     public void handleLogin(ActionEvent event) {
         String username = usernameTb.getText();
         String password = passwordTb.getText();
         // Call validateLogin to get both userID and role
-        int[] array = dbHandler.validateLogin(username, password);  // Get userID and role
+        int[] array = dbUserHandler.validateLogin(username, password);  // Get userID and role
         int userID = array[0];  // Get userID from the array
         int role = array[1];  // Get role (0 for customer, 1 for admin
         SessionManager.getInstance().setUserID(userID); // Example userID
@@ -54,7 +56,7 @@ public class LoginController {
     public void switchToRegisterPage(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("registration.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/registration.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -70,7 +72,7 @@ public class LoginController {
     public void goToMainDashboard(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("mainDashboard.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/mainDashboard.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -87,7 +89,7 @@ public class LoginController {
     public void goToAdminDashboard(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("AdminDashboard.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminDashboard.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.sql.*;
 
 import application.LoginController;
+import databaseControllers.DatabaseHandler;
 public class adminModifyController {
 	
 	    @FXML
@@ -99,7 +100,7 @@ public class adminModifyController {
 	    public void goToMainDashboard(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("AdminDashboard.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminDashboard.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

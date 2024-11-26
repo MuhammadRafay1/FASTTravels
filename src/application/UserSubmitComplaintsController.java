@@ -11,7 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
+import databaseControllers.userDatabaseHandler;
 public class UserSubmitComplaintsController {
 	
 	 @FXML
@@ -32,13 +32,13 @@ public class UserSubmitComplaintsController {
 	    @FXML
 	    private TextField usernameTb;
 	    
-	    DatabaseHandler dbhandler = new DatabaseHandler();
+	    userDatabaseHandler dbUserhandler = new userDatabaseHandler();
 
     @FXML
     public void goToMenu(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("mainDashboard.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/mainDashboard.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -58,7 +58,7 @@ public class UserSubmitComplaintsController {
         int vehicleID = Integer.parseInt(usernameTb.getText()); // Vehicle ID selected by the user (set somewhere in your app)
 
         // Call the method to insert the complaint into the database
-        dbhandler.insertComplaint(userID, vehicleID, details);
+        dbUserhandler.insertComplaint(userID, vehicleID, details);
     }
 
 }

@@ -16,7 +16,7 @@ public class AdminDashboardController {
 	 public void goToLogin(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("login.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/login.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -33,7 +33,7 @@ public class AdminDashboardController {
 	 public void goToComplaintDashboard(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("AdminManageComplaints.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminManageComplaints.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -50,7 +50,7 @@ public class AdminDashboardController {
 	 public void goToManageVehicle(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("manageVehicle.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/manageVehicle.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -67,7 +67,7 @@ public class AdminDashboardController {
 	 public void goToRouteManagement(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("AdminManageRoutes.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminManageRoutes.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -84,7 +84,7 @@ public class AdminDashboardController {
 	 public void goToManageProfile(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("AdminModifyAccount.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminModifyAccount.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

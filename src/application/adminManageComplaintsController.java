@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import java.sql.Connection;
 import java.io.IOException;
 import java.sql.*;
-
+import databaseControllers.userDatabaseHandler;
 import Classes.Complaint;
 public class adminManageComplaintsController {
 	
@@ -30,8 +30,9 @@ public class adminManageComplaintsController {
 	    @FXML
 	    private CheckBox showAllCB;
 	    
-	    DatabaseHandler dbHandler = new DatabaseHandler();
-	    
+	    userDatabaseHandler dbUserHandler = new userDatabaseHandler();
+	   // adminDatabaseController adminDbHanlder = new adminDatabaseController();
+	   
 	    @FXML
 	    public void initialize() {
 	        loadComplaints(false); // By default, show only "Submitted" complaints
@@ -45,37 +46,9 @@ public class adminManageComplaintsController {
 	     */
 	    private void loadComplaints(boolean showAll) {
 	    	
-	    	Complaint complain = new Complaint();
-	        String query = showAll
-	                ? "SELECT * FROM Complaint"
-	                : "SELECT * FROM Complaint WHERE status = 'Submitted'";
-
-	        StringBuilder complaintsDisplay = new StringBuilder();
-
-	        try (Connection conn = dbHandler.connect();
-	             PreparedStatement stmt = conn.prepareStatement(query);
-	             ResultSet rs = stmt.executeQuery()) {
-
-	            while (rs.next()) {
-	                int complaintID = rs.getInt("complaintID");
-	                int userID = rs.getInt("userID");
-	                int vehicleID = rs.getInt("vehicleID");
-	                String details = rs.getString("details");
-	                String status = rs.getString("status");
-
-	                complaintsDisplay.append("Complaint ID: ").append(complaintID).append("\n")
-	                        .append("User ID: ").append(userID).append("\n")
-	                        .append("Vehicle ID: ").append(vehicleID).append("\n")
-	                        .append("Details: ").append(details).append("\n")
-	                        .append("Status: ").append(status).append("\n\n");
-	            }
-
-	            complaintsTextArea.setText(complaintsDisplay.toString());
-
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	            complaintsTextArea.setText("Error loading complaints.");
-	        }
+	    	String text;
+	    	text = dbUserHandler.loadComplaints(showAll); 
+	    	complaintsTextArea.setText(text);
 	    }
 
 	    
@@ -96,32 +69,14 @@ public class adminManageComplaintsController {
 	            return;
 	        }
 
-	        String query = "UPDATE Complaint SET status = 'Resolved' WHERE complaintID = ? AND status = 'Submitted'";
-
-	        try (Connection conn = dbHandler.connect();
-	             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-	            stmt.setInt(1, complaintID);
-
-	            int rowsAffected = stmt.executeUpdate();
-	            if (rowsAffected > 0) {
-	                showAlert(Alert.AlertType.INFORMATION, "Success", "Complaint marked as resolved.");
-	                loadComplaints(showAllCB.isSelected());
-	            } else {
-	                showAlert(Alert.AlertType.WARNING, "No Changes", "No unresolved complaint found with the given ID.");
-	            }
-
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to update complaint status.");
-	        }
+	        dbUserHandler.resolveComplaints(complaintID,showAllCB.isSelected());
 	    }
 
 	    @FXML
 	    public void goToMainDashboard(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("AdminDashboard.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminDashboard.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

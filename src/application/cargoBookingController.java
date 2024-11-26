@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-
+import Classes.RouteDetails;
 import Classes.Vehicle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,7 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
+import databaseControllers.BookingDatabaseHandler;
 public class cargoBookingController {
 	
 	    @FXML
@@ -64,60 +64,56 @@ public class cargoBookingController {
 	    public String origin,Destination,bookingType;
 	    public LocalDate date;
 	    public int numTickets;
-	    DatabaseHandler dbHandler = new DatabaseHandler();
+	    BookingDatabaseHandler dbHandler = new BookingDatabaseHandler();
 	    
 	    
 	    @FXML
-	    public void confirmBooking(ActionEvent event) throws IOException {
-	        try (Connection conn = DatabaseHandler.connect();
-	             PreparedStatement stmt = conn.prepareStatement(
-	                 "SELECT r.distance, v.type FROM route r " +
-	                 "JOIN vehicle v ON r.routeID = v.routeID " +
-	                 "WHERE v.vehicleID = ?")) {
+	    public void confirmBooking(ActionEvent event) {
+	        try {
+	            // Validate cargo dimensions and weight
+	            int weight = Integer.parseInt(weightTB.getText());
+	            int height = Integer.parseInt(heightTB.getText());
+	            int width = Integer.parseInt(widthTB.getText());
 
-	            // Set the selected vehicleID
-	            stmt.setInt(1, vehicleID);
-	            System.out.println("Executing SQL: " + stmt.toString());
+	            if (weight > 12 || height > 24 || width > 36) {
+	                showAlert("Invalid Cargo Dimensions", 
+	                          "Weight must be ≤ 12kg, height ≤ 24 inches, and width ≤ 36 inches.");
+	                return;
+	            }
 
-	            ResultSet rs = stmt.executeQuery();
+	            // Fetch route details and vehicle type
+	            RouteDetails routeDetails = dbHandler.getRouteDetailsByVehicleID(vehicleID);
 
-	            if (rs.next()) {
-	                // Get the route distance and vehicle type
-	                double distance = rs.getDouble("distance");
-	                String type = rs.getString("type");
-	                int weight = Integer.parseInt(weightTB.getText());
-	                int height = Integer.parseInt(heightTB.getText());
-	                int width = Integer.parseInt(widthTB.getText());
+	            if (routeDetails != null) {
+	                // Calculate fare
+	                double fare = calculateFare(routeDetails.getDistance(), weight, routeDetails.getType());
 
-	                // Validate the cargo dimensions and weight
-	                if (weight > 12 || height > 24 || width > 36) {
-	                    showAlert("Invalid Cargo Dimensions", 
-	                              "Weight must be ≤ 12kg, height ≤ 24 inches, and width ≤ 36 inches.");
-	                    return;
-	                }
-
-	                // Calculate the fare
-	                double fare = calculateFare(distance, weight, type);
-
-	                // Insert the main booking and retrieve the booking ID
+	                // Insert booking and retrieve booking ID
 	                int bookingID = dbHandler.insertBooking(vehicleID, date, numTickets, origin, Destination, bookingType, userID, fare);
 
 	                if (bookingID > 0) {
-	                    // Insert into the CargoBooking table
-	                    dbHandler.insertCargoBooking(bookingID, userID, vehicleID, weight, height, width, date);
+	                    // Insert into CargoBooking table
+	                    boolean isCargoInserted = dbHandler.insertCargoBooking(bookingID, userID, vehicleID, weight, height, width, date);
 
-	                    showAlert("Booking Confirmed", "Cargo booking confirmed. Fare: " + fare);
+	                    if (isCargoInserted) {
+	                        showAlert("Booking Confirmed", "Cargo booking confirmed. Fare: " + fare);
+	                    } else {
+	                        showAlert("Booking Failed", "Cargo booking insertion failed.");
+	                    }
 	                } else {
 	                    showAlert("Booking Failed", "Could not confirm the booking. Please try again.");
 	                }
 	            } else {
 	                showAlert("No Vehicle Found", "No vehicles found for the selected route.");
 	            }
-	        } catch (SQLException e) {
+	        } catch (NumberFormatException e) {
+	            showAlert("Invalid Input", "Please enter valid numbers for weight, height, and width.");
+	        } catch (Exception e) {
 	            e.printStackTrace();
-	            System.out.println("Error during booking confirmation: " + e.getMessage());
+	            showAlert("Error", "An error occurred: " + e.getMessage());
 	        }
 	    }
+
 
 	    
 	    private double calculateFare(double distance, int weight, String type) {
@@ -187,7 +183,7 @@ public class cargoBookingController {
 	    public void goToMainDashboard(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("mainDashboard.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/mainDashboard.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
@@ -204,7 +200,7 @@ public class cargoBookingController {
 	    public void goToPayment(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	        	FXMLLoader loader = new FXMLLoader(getClass().getResource("Payment.fxml"));
+	        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmlFiles/Payment.fxml"));
 	            Parent root = loader.load();
 
 	            // Pass the bookingID to the controller's initialize method
@@ -226,7 +222,7 @@ public class cargoBookingController {
 	            //SessionManager.getInstance().setBookingID(bookingID);
 
 	            // Load the Payment Screen FXML
-	            FXMLLoader loader = new FXMLLoader(getClass().getResource("Payment.fxml"));
+	            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmlFiles/Payment.fxml"));
 	            Parent root = loader.load();
 
 	            // The initialize method in PaymentController is automatically called here

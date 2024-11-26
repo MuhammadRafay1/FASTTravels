@@ -8,11 +8,7 @@ public class Admin extends User {
         super(userID, name, email, cnic,phone, password, "Admin");
     }
 
-    @Override
-    public void updateProfile(String newEmail) {
-        this.email = newEmail;
-        System.out.println("Admin profile updated.");
-    }
+
 
 //    public void manageRoutes(List<Route> routes) {
 //        System.out.println("Managing routes.");

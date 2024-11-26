@@ -1,17 +1,13 @@
 package application;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
-import Classes.Vehicle;
+import Classes.*;
+import databaseControllers.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,259 +16,217 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import Classes.Route;
 
-public class BookTicketsController<PaymentController> {
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
-	 @FXML
-	    private ChoiceBox<Vehicle> avaialableTrains;
+import java.util.Optional;
 
-	    @FXML
-	    private ChoiceBox<Vehicle> availabalebus;
+public class BookTicketsController {
 
-	    @FXML
-	    private ChoiceBox<Vehicle> availableflights;
+    @FXML private ChoiceBox<Vehicle> avaialableTrains;
+    @FXML private ChoiceBox<Vehicle> availabalebus;
+    @FXML private ChoiceBox<Vehicle> availableflights;
 
-	    @FXML
-	    private Button bsearch;
+    @FXML private DatePicker busDate;
+    @FXML private TextField busSourcetb;
+    @FXML private TextField busDesttb;
+    @FXML private TextField busNumTickets;
 
-	    @FXML
-	    private DatePicker busDate;
+    @FXML private DatePicker flightdate;
+    @FXML private TextField flightSourcetb;
+    @FXML private TextField flightDesttb;
+    @FXML private TextField flightNumTickets;
 
-	    @FXML
-	    private TextField busDesttb;
+    @FXML private DatePicker trainDate;
+    @FXML private TextField trainSourcetb;
+    @FXML private TextField trainDestinationtb;
+    @FXML private TextField trainNumTickets;
 
-	    @FXML
-	    private TextField busNumTickets;
+    @FXML private Button cbBus;
+    @FXML private Button cbFlight;
+    @FXML private Button cbTrain;
+    @FXML private Button bsearch;
+    @FXML private Button fsearch;
+    @FXML private Button tsearch;
+    @FXML private Button goToMainDashboard;
 
-	    @FXML
-	    private TextField busSourcetb;
+    @FXML private Tab bussearch;
+    @FXML private Tab flightSearch;
+    @FXML private Tab trainSearch;
 
-	    @FXML
-	    private Tab bussearch;
-
-	    @FXML
-	    private Button cbBus;
-
-	    @FXML
-	    private Button cbFlight;
-
-	    @FXML
-	    private Button cbTrain;
-
-	    @FXML
-	    private TextField flightDesttb;
-
-	    @FXML
-	    private TextField flightNumTickets;
-
-	    @FXML
-	    private Tab flightSearch;
-
-	    @FXML
-	    private TextField flightSourcetb;
-
-	    @FXML
-	    private DatePicker flightdate;
-
-	    @FXML
-	    private Button fsearch;
-
-	    @FXML
-	    private Button goToMainDashboard;
-
-	    @FXML
-	    private DatePicker trainDate;
-
-	    @FXML
-	    private TextField trainDestinationtb;
-
-	    @FXML
-	    private TextField trainNumTickets;
-
-	    @FXML
-	    private Tab trainSearch;
-
-	    @FXML
-	    private TextField trainSourcetb;
-
-	    @FXML
-	    private Button tsearch;
-	    
-	    Vehicle vehicle;
-	    Route route;
-	    int vehicleID;
-	    String vehiclename;
-	    LocalDate date;
-	    String origin;
-	    String Destination;
-	    int numTickets;
-	    String bookingType;
-	    double fare;
-	    int userID = -1;
-
-    private DatabaseHandler dbHandler = new DatabaseHandler();
-
-    
+    private final DatabaseHandler dbHandler = new DatabaseHandler();
+    private final BookingDatabaseHandler dbBookingHandler = new BookingDatabaseHandler();
+    private final VehicleRouteDatabaseHandler dbVehicleRouteHandler = new VehicleRouteDatabaseHandler();
+    private Vehicle selectedVehicle;
+    private Booking currentBooking;
+    int numTickets;
     
     @FXML
-    public void confirmBooking(ActionEvent event) {
-        try {
-
-            Vehicle vehicle = dbHandler.getVehicleByID(vehicleID); // Delegate to DatabaseHandler
-
-            if (vehicle != null) {
-                double distance = dbHandler.getRouteDistance(vehicleID); // Delegate to DatabaseHandler
-                double fare = vehicle.calculateFare(distance, numTickets, vehicle.getType());
-
-                int bookingID = dbHandler.insertBooking(vehicleID, date, numTickets, origin, Destination, bookingType, userID, fare);
-
-                showAlert("Booking Confirmed", "Fare: " + fare + "BookingID: " + bookingID);
-            } else {
-                showAlert("Oops!", "No vehicle found");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Error during booking confirmation: " + e.getMessage());
-            showAlert("Error", "Something went wrong during booking.");
-        }
+    public void initialize() {
+        LocalDate today = LocalDate.now();
+        busDate.setDayCellFactory(picker -> createDayCell(today));
+        trainDate.setDayCellFactory(picker -> createDayCell(today));
+        flightdate.setDayCellFactory(picker -> createDayCell(today));
     }
 
+    private DateCell createDayCell(LocalDate today) {
+        return new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                setDisable(empty || item.isBefore(today) || item.isAfter(today.plusDays(7)));
+            }
+        };
+    }
+    @FXML
+    public void confirmBooking(ActionEvent event) throws SQLException {
+        if (currentBooking == null || selectedVehicle == null) {
+            showAlert("Error", "No booking or vehicle selected.");
+            return;
+        }
+
+        LocalDate date = currentBooking.getDate();
+
+        // Check if the date is within the next 7 days
+        if (date.isBefore(LocalDate.now()) || date.isAfter(LocalDate.now().plusDays(7))) {
+            showAlert("Error", "Bookings can only be made for the next 7 days.");
+            return;
+        }
+
+        int availableSeats = dbVehicleRouteHandler.getAvailableSeats(selectedVehicle.getVehicleID(), date);
+        if (availableSeats == -1) {
+            // If no entry exists, initialize with max capacity and subtract tickets
+            int maxCapacity = dbVehicleRouteHandler.getMaxVehicleCapacity(selectedVehicle.getVehicleID());
+            availableSeats = maxCapacity - currentBooking.getNumTickets();
+            dbVehicleRouteHandler.insertVehicleCapacity(selectedVehicle.getVehicleID(), date, availableSeats);
+        } else if (availableSeats >= currentBooking.getNumTickets()) {
+            // Update capacity if enough seats are available
+            dbVehicleRouteHandler.updateVehicleCapacity(selectedVehicle.getVehicleID(), date, -currentBooking.getNumTickets());
+        } else {
+            // Offer waitlist if insufficient seats
+            boolean addToWaitlist = showWaitlistPrompt();
+            if (addToWaitlist) {
+                dbVehicleRouteHandler.addToWaitlist(
+                    SessionManager.getInstance().getUserID(),
+                    selectedVehicle.getVehicleID(),
+                    date,
+                    currentBooking.getNumTickets()
+                );
+                showAlert("Added to Waitlist", "You have been added to the waitlist for this booking.");
+            } else {
+                showAlert("Booking Failed", "Not enough seats available and waitlist declined.");
+            }
+            return;
+        }
+
+        // Confirm booking
+        double distance = dbVehicleRouteHandler.getRouteDistance(selectedVehicle.getVehicleID());
+        currentBooking.setFare(currentBooking.calculatePrice(distance, currentBooking.getNumTickets()));
+        int bookingID = dbBookingHandler.insertBooking(
+            selectedVehicle.getVehicleID(),
+            currentBooking.getDate(),
+            currentBooking.getNumTickets(),
+            currentBooking.getRoute().getStartPoint(),
+            currentBooking.getRoute().getEndPoint(),
+            currentBooking.getBookingType(),
+            SessionManager.getInstance().getUserID(),
+            currentBooking.getFare()
+        );
+
+        showAlert("Booking Confirmed", "Fare: " + currentBooking.getFare() + "\nBooking ID: " + bookingID);
+    }
 
 
     @FXML
     public void populateFlightChoiceBox() {
-        origin = flightSourcetb.getText();
-        Destination = flightDesttb.getText();
-        date = flightdate.getValue();
-        numTickets = Integer.parseInt(flightNumTickets.getText());
-        bookingType = "Flight";
-
-        populateChoiceBoxWithVehicles(availableflights, "Flight", origin, Destination);
+        populateChoiceBox(flightSourcetb, flightDesttb, flightdate, flightNumTickets, "Flight", availableflights);
     }
 
     @FXML
     public void populateBusChoiceBox() {
-        origin = busSourcetb.getText();
-        Destination = busDesttb.getText();
-        date = busDate.getValue();
-        numTickets = Integer.parseInt(busNumTickets.getText());
-        bookingType = "Bus";
-
-        populateChoiceBoxWithVehicles(availabalebus, "Bus", origin, Destination);
+        populateChoiceBox(busSourcetb, busDesttb, busDate, busNumTickets, "Bus", availabalebus);
     }
 
     @FXML
     public void populateTrainChoiceBox() {
-        origin = trainSourcetb.getText();
-        Destination = trainDestinationtb.getText();
-        date = trainDate.getValue();
-        numTickets = Integer.parseInt(trainNumTickets.getText());
-        bookingType = "Train";
-
-        populateChoiceBoxWithVehicles(avaialableTrains, "Train", origin, Destination);
+        populateChoiceBox(trainSourcetb, trainDestinationtb, trainDate, trainNumTickets, "Train", avaialableTrains);
     }
 
-    private void populateChoiceBoxWithVehicles(ChoiceBox<Vehicle> choiceBox, String vehicleType, String startPoint, String endPoint) {
+    private void populateChoiceBox(TextField sourceField, TextField destinationField, DatePicker datePicker, TextField ticketsField, String type, ChoiceBox<Vehicle> choiceBox) {
         try {
-            List<Vehicle> vehicles = dbHandler.getAvailableVehiclesByRouteAndType(startPoint, endPoint, vehicleType);
+            // Validate inputs
+            if (sourceField.getText().isEmpty() || destinationField.getText().isEmpty() || datePicker.getValue() == null || ticketsField.getText().isEmpty()) {
+                showAlert("Validation Error", "Please fill all fields.");
+                return;
+            }
 
-            // Populate ChoiceBox with Vehicle objects
+            // Create Route
+            Route route = new Route(sourceField.getText(), destinationField.getText());
+            numTickets = Integer.parseInt(ticketsField.getText());
+            LocalDate date = datePicker.getValue();
+
+            // Use Factory to create Booking instance
+            currentBooking = BookingFactory.createBooking(type, route, numTickets, date);
+
+            // Fetch available vehicles
+            List<Vehicle> vehicles = dbVehicleRouteHandler.getAvailableVehiclesByRouteAndType(route.getStartPoint(), route.getEndPoint(), type);
             choiceBox.getItems().clear();
             choiceBox.getItems().addAll(vehicles);
 
-            // Add listener to capture user selection
-            choiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    // Access selected Vehicle object directly
-                    vehicleID = newValue.getVehicleID();
-                    vehiclename = newValue.getCompany();
+            // Listener for vehicle selection
+            choiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> selectedVehicle = newValue);
 
-                    userID = SessionManager.getInstance().getUserID(); // Use session management for user info
-
-                    System.out.println("Selected Vehicle: " + vehicleID + ", Company: " + vehiclename);
-
-                    // Perform any additional actions if needed
-                }
-            });
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Invalid number of tickets.");
         } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Unable to fetch vehicles: " + e.getMessage());
+            showAlert("Error", "Failed to load vehicles: " + e.getMessage());
         }
     }
 
-
-
-    
     @FXML
     public void goToMainDashboard(ActionEvent event) throws IOException {
-        try {
-            // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("mainDashboard.fxml"));
-            
-            // Get the current stage and set the new scene
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Error loading mainDashboard.fxml: " + e.getMessage());
-            e.printStackTrace();
-        }
+        switchScene("/fxmlFiles/mainDashboard.fxml", event);
     }
-    
+
     @FXML
-    public void goToPayment(ActionEvent event) throws IOException {
-        try {
-            // Load the RegisterPage.fxml
-        	FXMLLoader loader = new FXMLLoader(getClass().getResource("Payment.fxml"));
-            Parent root = loader.load();
-
-            // Pass the bookingID to the controller's initialize method
-            
-            // Get the current stage and set the new scene
-            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Error loading mainDashboard.fxml: " + e.getMessage());
-            e.printStackTrace();
-        }
+    public void proceedToPayment(ActionEvent event) throws IOException {
+        switchScene("/fxmlFiles/Payment.fxml", event);
     }
-    
-    public void proceedToPayment(ActionEvent event) {
-        try {
-            // Set the bookingID in the SessionManager
-            //SessionManager.getInstance().setBookingID(bookingID);
 
-            // Load the Payment Screen FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Payment.fxml"));
-            Parent root = loader.load();
-
-            // The initialize method in PaymentController is automatically called here
-
-            // Show the Payment Screen
-            Stage stage = new Stage();
-            stage.setTitle("Payment Processing");
-            stage.setScene(new Scene(root));
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void switchScene(String fxmlPath, ActionEvent event) throws IOException {
+        AnchorPane root = FXMLLoader.load(getClass().getResource(fxmlPath));
+        Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.show();
     }
-    
+
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public boolean showWaitlistPrompt() {
+        // Create a confirmation alert
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Waitlist Confirmation");
+        alert.setHeaderText("Vehicle is Fully Booked");
+        alert.setContentText("Would you like to be added to the waitlist?");
+
+        // Show the alert and wait for the user's response
+        Optional<ButtonType> result = alert.showAndWait();
+
+        // Return true if the user clicks "Yes", false otherwise
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 
 }

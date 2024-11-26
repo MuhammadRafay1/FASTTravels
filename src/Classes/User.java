@@ -2,7 +2,7 @@ package Classes;
 
 import java.util.regex.Pattern;
 
-public abstract class User {
+public class User {
     protected int userID;
     protected String name;
     protected String email;
@@ -21,6 +21,14 @@ public abstract class User {
         this.type = type;
     }
     
+    public User(int userID, String name, String email, String cnic, String phone) {
+        this.userID = userID;
+        this.name = name;
+        this.email = email;
+        this.cnic = cnic;
+        this.phone = phone;
+    }
+    
     public User() {}
 
     // Login method
@@ -28,10 +36,6 @@ public abstract class User {
         System.out.println(name + " logged in.");
     }
 
-    // Abstract method for profile updates
-    public abstract void updateProfile(String newEmail);
-
-    // --- Validation Functions ---
 
     // Validate email
     private boolean isValidEmail(String email) {

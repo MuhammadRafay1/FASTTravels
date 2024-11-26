@@ -1,0 +1,85 @@
+/* AnchorPane background styling */
+.root {
+    -fx-background-color: linear-gradient(to bottom right, #6a11cb, #2575fc); /* Purple to Blue */
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-text-fill: white; /* Set default text color to white for better contrast */
+}
+
+/* Title Label (User Dashboard) */
+.label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff; /* Deep blue text */
+}
+
+/* Sidebar Buttons */
+/* Sidebar Buttons */
+.button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff; /* White text */
+    -fx-background-color: linear-gradient(to bottom, #4b79a1, #283e51); /* Blue gradient */
+    -fx-border-radius: 10px; /* Rounded corners */
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+/* Sidebar Button Hover Effect */
+.button:hover {
+    -fx-background-color: transparent; /* Reverse gradient */
+    -fx-text-fill: #ffffff; /* Ensure consistent white text */
+}
+
+/* Logout Button */
+#logoutButton {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #ff4d4d; /* Flat red background */
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 5px; /* Slightly rounded corners */
+    -fx-cursor: hand;
+}
+
+/* Logout Button Hover Effect */
+#logoutButton:hover {
+    -fx-background-color: #e60000; /* Darker red */
+}
+
+
+/* Advertisement Image Styling */
+/* Advertisement Image Styling */
+#adimg1 {
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+    -fx-opacity: 1.0;
+    -fx-background-color: transparent;
+}
+
+#avatarLogo {
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+    -fx-opacity: 1.0;
+    -fx-background-color: #ffffff;
+}
+
+/* Hover Effect for Advertisement Image */
+#adimg1:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 10, 0, 0, 5); /* Stronger shadow */
+    -fx-cursor: hand;
+}
+
+
+
+/* Background Image Styling */
+.image-view {
+    -fx-opacity: 0.6; /* Transparency */
+}
+
+/* Separator Styling */
+.separator {
+    -fx-background-color: #cccccc;
+}

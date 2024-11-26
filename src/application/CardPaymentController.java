@@ -8,8 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
-public class CardPaymentController {
+import databaseControllers.*
+;public class CardPaymentController {
 	@FXML
     private TextField CVVTB;
 
@@ -25,7 +25,7 @@ public class CardPaymentController {
     @FXML
     private Button confrimPayementButton;
     
-    DatabaseHandler dbHandler = new DatabaseHandler();
+    paymentDatabaseController dbHandler = new paymentDatabaseController();
     @FXML
     public void confirmPayment(ActionEvent event) {
         // Retrieve data from TextFields
@@ -58,7 +58,7 @@ public class CardPaymentController {
     public void backToPayment(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("Payment.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/Payment.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

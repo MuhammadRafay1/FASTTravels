@@ -1,13 +1,19 @@
 package application;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
+import databaseControllers.userDatabaseHandler;
 import javafx.event.ActionEvent;
 import javafx.fxml.*;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 public class TravelHistoryController {
 
@@ -23,62 +29,41 @@ public class TravelHistoryController {
     /**
      * Fetch and display travel history for the logged-in user.
      */
-    @FXML
     public void showTravelHistory(ActionEvent event) {
         int userID = SessionManager.getInstance().getUserID(); // Get userID from session or login context
 
-        // Base query to fetch bookings for the user
-        String query = "SELECT * FROM booking WHERE userID = ?";
+        // Call the database handler to fetch travel history
+        userDatabaseHandler dbHandler = new userDatabaseHandler();
+        List<String> travelHistory = dbHandler.getTravelHistory(userID, fbdCb.isSelected());
 
-        // Add sorting condition if "Filter by Date" is selected
-        if (fbdCb.isSelected()) {
-            query += " ORDER BY bookingDate DESC";
+        // Display travel history in the TextArea
+        if (travelHistory.isEmpty()) {
+            travelHistoryTA.setText("No travel history found.");
+        } else {
+            travelHistoryTA.setText(String.join("\n", travelHistory)); // Combine list into a single string
         }
-
-        try (Connection conn = DatabaseHandler.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, userID);  // Set the userID in the query
-            ResultSet rs = stmt.executeQuery();
-
-            // Use StringBuilder to collect travel history lines
-            StringBuilder travelHistory = new StringBuilder();
-
-            while (rs.next()) {
-                int bookingID = rs.getInt("bookingID");
-                String bookingDate = rs.getString("bookingDate");
-                String origin = rs.getString("origin");
-                String destination = rs.getString("destination");
-                String vehicleType = rs.getString("bookingType");
-                int vehicleID = rs.getInt("vehicleID");
-
-                // Format each booking as a single line
-                travelHistory.append("Booking ID: ").append(bookingID)
-                        .append(" | Date: ").append(bookingDate)
-                        .append(" | Route: ").append(origin).append(" -> ").append(destination)
-                        .append(" | Vehicle: ").append(vehicleType)
-                        .append(" | VehicleID: ").append(vehicleID)
-                        .append("\n"); // Separate each booking with a newline
-            }
-
-            // Display travel history in the TextArea
-            if (travelHistory.length() > 0) {
-                travelHistoryTA.setText(travelHistory.toString());
-            } else {
-                travelHistoryTA.setText("No travel history found.");
-            }
-
-        } catch (SQLException e) {
+    }
+    
+    @FXML
+    public void goToMainDashboard(ActionEvent event) throws IOException {
+        try {
+            // Load the RegisterPage.fxml
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/mainDashboard.fxml"));
+            
+            // Get the current stage and set the new scene
+            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Error loading mainDashboard.fxml: " + e.getMessage());
             e.printStackTrace();
-            showAlert("Error", "Error retrieving travel history: " + e.getMessage());
         }
     }
 
- 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
-        alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }

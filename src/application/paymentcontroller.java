@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import databaseControllers.BookingDatabaseHandler;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,8 +33,8 @@ public class paymentcontroller {
     private Button proceedbutton; // Button to Confirm Payment Method
 
     private int bookingID; // Holds the current Booking ID
-
-
+    private float fare;
+    BookingDatabaseHandler dbhandler = new BookingDatabaseHandler();
     @FXML
     public void initialize() {
         System.out.println("PaymentController: initialize() called.");
@@ -46,26 +47,9 @@ public class paymentcontroller {
     private void loadBookingDetails() {
         bookingID = SessionManager.getInstance().getBookingID(); // Retrieve booking ID from session
         System.out.println("Loading details for bookingID: " + bookingID);
-
-        String query = "SELECT fare FROM Booking WHERE bookingID = ?";
-
-        try (Connection conn = DatabaseHandler.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, bookingID); // Set the Booking ID
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                bookingidtb.setText(String.valueOf(bookingID)); // Set booking ID in the TextField
-                ammounttb.setText(String.format("%.2f", rs.getFloat("fare"))); // Set the fare amount
-                System.out.println("Fare: " + rs.getFloat("fare"));
-            } else {
-                System.out.println("No booking found for bookingID: " + bookingID);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load booking details: " + e.getMessage());
-        }
+        fare = dbhandler.loadBookingDetailsWithBookingID(bookingID);
+        bookingidtb.setText(String.valueOf(bookingID)); // Set booking ID in the TextField
+        ammounttb.setText(String.format("%.2f", fare)); // Set the fare amount
     }
 
     private void setupPaymentMethods() {
@@ -83,24 +67,7 @@ public class paymentcontroller {
 
 
     private void handleCashPayment() {
-        String query = """
-                INSERT INTO Payment (bookingID, amount, status, paymentType)
-                VALUES (?, ?, 'Unpaid', 'Cash')
-                """;
-
-        try (Connection conn = DatabaseHandler.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, bookingID); // Set the Booking ID
-            stmt.setFloat(2, Float.parseFloat(ammounttb.getText())); // Set the Payment Amount
-
-            stmt.executeUpdate(); // Execute the query
-
-            showAlert("Payment Method: Cash", "Pay on arrival. Your payment is marked as pending.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to process payment: " + e.getMessage());
-        }
+        dbhandler.insertingToPayment(bookingID, fare);
     }
 
 
@@ -111,7 +78,7 @@ public class paymentcontroller {
     private void handleCardPayment() {
         try {
             // Load the Card Payment Screen (CardPayment.fxml)
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("CardPayment.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmlFiles/CardPayment.fxml"));
             Parent root = loader.load();
 
             // Get the current stage

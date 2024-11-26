@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import databaseControllers.userDatabaseHandler;
 
 public class RegistrationController {
     @FXML private TextField usernameTb;
@@ -20,7 +21,7 @@ public class RegistrationController {
     @FXML private TextField cnictb;
     @FXML private TextField phonenumtb;
 
-    private DatabaseHandler dbHandler = new DatabaseHandler();
+    private userDatabaseHandler dbUserHandler = new userDatabaseHandler();
     private User user;
     @FXML
     private void handleRegistration(ActionEvent event) {
@@ -30,7 +31,7 @@ public class RegistrationController {
         user.setCnic(cnictb.getText());
         user.setPhone(phonenumtb.getText());
         
-        if (dbHandler.registerUser(user)) {
+        if (dbUserHandler.registerUser(user)) {
             showAlert("Registration Successful", "Navigate to login Page");
         } else {
             showAlert(" Failed", "Incorrect credentials or Account already exists.");
@@ -41,7 +42,7 @@ public class RegistrationController {
     public void goToLogin(ActionEvent event) throws IOException {
         try {
             // Load the RegisterPage.fxml
-            AnchorPane root = FXMLLoader.load(getClass().getResource("login.fxml"));
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/login.fxml"));
             
             // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();

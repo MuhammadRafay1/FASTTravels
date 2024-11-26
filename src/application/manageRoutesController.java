@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
-
+import databaseControllers.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.*;
 import javafx.scene.Scene;
@@ -41,6 +41,7 @@ public class manageRoutesController {
 	    private Button saveRouteButton;
 	
 	    DatabaseHandler dbHandler = new DatabaseHandler();
+	    VehicleRouteDatabaseHandler dbVehicleRouteHandler = new VehicleRouteDatabaseHandler();
 	    
 	    public void initialize() {
 	        populateAllRoutes(); // Populate the text area when the scene loads
@@ -59,7 +60,7 @@ public class manageRoutesController {
 
 	        try {
 	            double distance = Double.parseDouble(distanceText);
-	            dbHandler.insertRoutes(startPoint, endPoint, distance);
+	            dbVehicleRouteHandler.insertRoutes(startPoint, endPoint, distance);
 	            // Insert route into the database
 	            
 	        } catch (NumberFormatException e) {
@@ -102,7 +103,7 @@ public class manageRoutesController {
 
 	        try {
 	            int routeID = Integer.parseInt(routeIdText);
-	            dbHandler.removeRoute(routeID);
+	            dbVehicleRouteHandler.removeRoute(routeID);
 	            populateAllRoutes();
 	            
 	        }  catch (NumberFormatException e) {
@@ -114,7 +115,7 @@ public class manageRoutesController {
 	    public void goToMainDashboard(ActionEvent event) throws IOException {
 	        try {
 	            // Load the RegisterPage.fxml
-	            AnchorPane root = FXMLLoader.load(getClass().getResource("AdminDashboard.fxml"));
+	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminDashboard.fxml"));
 	            
 	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
