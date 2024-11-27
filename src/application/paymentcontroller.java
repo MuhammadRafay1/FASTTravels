@@ -1,115 +1,86 @@
 package application;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import databaseControllers.BookingDatabaseHandler;
+import Classes.Payment;
+import Factory.PaymentFactory;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.sql.SQLException;
 
 public class paymentcontroller {
 
     @FXML
-    private TextField ammounttb; // TextField for Amount
+    private TextField ammounttb;
 
     @FXML
-    private Button backbutton; // Back Button
+    private Button backbutton;
 
     @FXML
-    private TextField bookingidtb; // TextField for Booking ID
+    private TextField bookingidtb;
 
     @FXML
-    private MenuButton choictb; // MenuButton for Payment Method
+    private MenuButton choictb;
 
     @FXML
-    private Button proceedbutton; // Button to Confirm Payment Method
+    private Button proceedbutton;
 
-    private int bookingID; // Holds the current Booking ID
+    private int bookingID;
     private float fare;
-    BookingDatabaseHandler dbhandler = new BookingDatabaseHandler();
+
     @FXML
     public void initialize() {
-        System.out.println("PaymentController: initialize() called.");
-
-        loadBookingDetails(); // Load the current booking details
-        setupPaymentMethods(); // Add payment methods to the dropdown
+        loadBookingDetails();
+        setupPaymentMethods();
     }
 
- 
     private void loadBookingDetails() {
-        bookingID = SessionManager.getInstance().getBookingID(); // Retrieve booking ID from session
+        bookingID = SessionManager.getInstance().getBookingID();
         System.out.println("Loading details for bookingID: " + bookingID);
-        fare = dbhandler.loadBookingDetailsWithBookingID(bookingID);
-        bookingidtb.setText(String.valueOf(bookingID)); // Set booking ID in the TextField
-        ammounttb.setText(String.format("%.2f", fare)); // Set the fare amount
-    }
 
-    private void setupPaymentMethods() {
-        // Cash Payment Option
-        MenuItem cashPayment = new MenuItem("Cash Payment");
-        cashPayment.setOnAction(e -> handleCashPayment());
-
-        // Card Payment Option
-        MenuItem cardPayment = new MenuItem("Card Payment");
-        cardPayment.setOnAction(e -> handleCardPayment());
-
-        // Add options to the MenuButton
-        choictb.getItems().addAll(cashPayment, cardPayment);
-    }
-
-
-    private void handleCashPayment() {
-        dbhandler.insertingToPayment(bookingID, fare);
-    }
-
-
-    /**
-     * Handles the card payment option by navigating to the card payment screen.
-     * This method can be called either from a key press or another function.
-     */
-    private void handleCardPayment() {
         try {
-            // Load the Card Payment Screen (CardPayment.fxml)
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxmlFiles/CardPayment.fxml"));
-            Parent root = loader.load();
-
-            // Get the current stage
-            Stage currentStage;
-
-            if (proceedbutton != null && proceedbutton.getScene() != null) {
-                // Retrieve the stage from the button if called via key press
-                currentStage = (Stage) proceedbutton.getScene().getWindow();
-            } else {
-                // Fallback: Create a new stage or handle it gracefully
-                System.out.println("No UI reference available. Creating a new stage.");
-                currentStage = new Stage();
-            }
-
-            // Set the scene and show the Card Payment screen
-            currentStage.setScene(new Scene(root));
-            currentStage.setTitle("Card Payment");
-            currentStage.show();
-        } catch (IOException e) {
+            fare = Payment.getFareByBookingID(bookingID);
+            bookingidtb.setText(String.valueOf(bookingID));
+            ammounttb.setText(String.format("%.2f", fare));
+        } catch (SQLException e) {
             e.printStackTrace();
-            showAlert("Error", "Failed to load the Card Payment screen: " + e.getMessage());
+            showAlert("Error", "Failed to load booking details: " + e.getMessage());
         }
     }
 
-    
-    public void proceedToCardPayment(ActionEvent event) {
-        SessionManager.getInstance().setBookingID(bookingID); // Example booking ID
-        handleCardPayment();
+    private void setupPaymentMethods() {
+        MenuItem cashPayment = new MenuItem("Cash Payment");
+        cashPayment.setOnAction(e -> handlePayment("cash"));
+
+        MenuItem cardPayment = new MenuItem("Card Payment");
+        cardPayment.setOnAction(e -> handlePayment("card"));
+
+        choictb.getItems().addAll(cashPayment, cardPayment);
     }
 
+    private void handlePayment(String paymentType) {
+        try {
+            // Use factory to create the specific payment object
+            Payment payment = PaymentFactory.createPayment(paymentType, 0, bookingID, fare);
 
+            if (payment.processPayment()) {
+                payment.savePayment(paymentType);
+                showAlert("Success", paymentType + " payment processed successfully.");
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to process " + paymentType + " payment: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            showAlert("Error", e.getMessage());
+        }
+    }
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -117,5 +88,37 @@ public class paymentcontroller {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public void proceedToCardPayment(ActionEvent event) {
+        SessionManager.getInstance().setBookingID(bookingID);
+            try {
+                // Load the RegisterPage.fxml
+                AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/cardPayment.fxml"));
+                
+                // Get the current stage and set the new scene
+                Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+                stage.show();
+            } catch (IOException e) {
+                System.err.println("Error loading cardPayment.fxml: " + e.getMessage());
+                e.printStackTrace();
+            }
+    }
+    
+    @FXML
+    public void goToMainDashboard(ActionEvent event) {
+        try {
+            // Load the AdminDashboard.fxml
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/mainDashboard.fxml"));
+            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Error loading AdminDashboard.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

@@ -35,12 +35,7 @@ public class TrainBooking extends Booking {
         return (distance * 2) * numTickets; // Example static price calculation
     }
 
-    @Override
-    public boolean saveToDatabase() {
-        // Implement saving logic (this is just a placeholder for now)
-        return false; // Assuming you have a method to handle saving train bookings
-    }
-
+  
     // Getters and Setters for new attributes
     public String getTrainNumber() {
         return trainNumber;

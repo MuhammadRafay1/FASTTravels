@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import Classes.*;
+import Factory.BookingFactory;
 import databaseControllers.*;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -62,30 +63,10 @@ public class BookTicketsController {
     @FXML private Tab flightSearch;
     @FXML private Tab trainSearch;
 
-    private final DatabaseHandler dbHandler = new DatabaseHandler();
-    private final BookingDatabaseHandler dbBookingHandler = new BookingDatabaseHandler();
-    private final VehicleRouteDatabaseHandler dbVehicleRouteHandler = new VehicleRouteDatabaseHandler();
     private Vehicle selectedVehicle;
     private Booking currentBooking;
     int numTickets;
     
-    @FXML
-    public void initialize() {
-        LocalDate today = LocalDate.now();
-        busDate.setDayCellFactory(picker -> createDayCell(today));
-        trainDate.setDayCellFactory(picker -> createDayCell(today));
-        flightdate.setDayCellFactory(picker -> createDayCell(today));
-    }
-
-    private DateCell createDayCell(LocalDate today) {
-        return new DateCell() {
-            @Override
-            public void updateItem(LocalDate item, boolean empty) {
-                super.updateItem(item, empty);
-                setDisable(empty || item.isBefore(today) || item.isAfter(today.plusDays(7)));
-            }
-        };
-    }
     @FXML
     public void confirmBooking(ActionEvent event) throws SQLException {
         if (currentBooking == null || selectedVehicle == null) {
@@ -101,20 +82,17 @@ public class BookTicketsController {
             return;
         }
 
-        int availableSeats = dbVehicleRouteHandler.getAvailableSeats(selectedVehicle.getVehicleID(), date);
+        int availableSeats = selectedVehicle.getAvailableSeats(date);
         if (availableSeats == -1) {
-            // If no entry exists, initialize with max capacity and subtract tickets
-            int maxCapacity = dbVehicleRouteHandler.getMaxVehicleCapacity(selectedVehicle.getVehicleID());
+            int maxCapacity = selectedVehicle.getMaxCapacity();
             availableSeats = maxCapacity - currentBooking.getNumTickets();
-            dbVehicleRouteHandler.insertVehicleCapacity(selectedVehicle.getVehicleID(), date, availableSeats);
+            selectedVehicle.insertCapacity(date, availableSeats);
         } else if (availableSeats >= currentBooking.getNumTickets()) {
-            // Update capacity if enough seats are available
-            dbVehicleRouteHandler.updateVehicleCapacity(selectedVehicle.getVehicleID(), date, -currentBooking.getNumTickets());
+            selectedVehicle.updateAvailableSeats(date, currentBooking.getNumTickets());
         } else {
-            // Offer waitlist if insufficient seats
             boolean addToWaitlist = showWaitlistPrompt();
             if (addToWaitlist) {
-                dbVehicleRouteHandler.addToWaitlist(
+                Vehicle.addToWaitlist(
                     SessionManager.getInstance().getUserID(),
                     selectedVehicle.getVehicleID(),
                     date,
@@ -127,10 +105,40 @@ public class BookTicketsController {
             return;
         }
 
-        // Confirm booking
-        double distance = dbVehicleRouteHandler.getRouteDistance(selectedVehicle.getVehicleID());
+        // Calculate the fare
+        double distance = selectedVehicle.getRouteDistance(selectedVehicle.getVehicleID());
         currentBooking.setFare(currentBooking.calculatePrice(distance, currentBooking.getNumTickets()));
-        int bookingID = dbBookingHandler.insertBooking(
+        
+        // Get user object
+        User user = new User(SessionManager.getInstance().getUserID());
+        double fare = currentBooking.getFare();
+        double walletBalance = user.getWalletBalance();
+
+        if (walletBalance >= fare) {
+            boolean useWallet = showWalletUsagePrompt(fare, walletBalance);
+            if (useWallet) {
+                fare = fare - walletBalance;
+                user.updateWalletBalance(0); // Wallet balance becomes 0
+                showAlert("Payment Successful", "Wallet balance used. New fare: " + fare);
+            } else {
+                showAlert("Payment", "Wallet balance not used.");
+            }
+        } else if (walletBalance > 0) {
+            boolean useWallet = showWalletUsagePrompt(fare, walletBalance);
+            if (useWallet) {
+                fare = fare - walletBalance;
+                user.updateWalletBalance(walletBalance - fare);
+                showAlert("Payment Successful", "Wallet balance partially used. New fare: " + fare);
+            }
+        } else {
+            showAlert("Insufficient Funds", "Not enough balance in wallet.");
+        }
+
+        // Increase loyalty points after successful booking
+        user.increaseLoyaltyPoints(50); // Increase by 10 points (or any other business logic)
+
+        // Confirm booking
+        int bookingID = currentBooking.insertToBooking(
             selectedVehicle.getVehicleID(),
             currentBooking.getDate(),
             currentBooking.getNumTickets(),
@@ -138,11 +146,23 @@ public class BookTicketsController {
             currentBooking.getRoute().getEndPoint(),
             currentBooking.getBookingType(),
             SessionManager.getInstance().getUserID(),
-            currentBooking.getFare()
+            fare
         );
 
-        showAlert("Booking Confirmed", "Fare: " + currentBooking.getFare() + "\nBooking ID: " + bookingID);
+        showAlert("Booking Confirmed", "Fare: " + fare + "\nBooking ID: " + bookingID);
     }
+
+    private boolean showWalletUsagePrompt(double fare, double walletBalance) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Use Wallet Balance?");
+        alert.setHeaderText("Do you want to use your wallet balance of " + walletBalance + " to pay for this booking?");
+        alert.setContentText("Fare: " + fare);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+
 
 
     @FXML
@@ -177,7 +197,7 @@ public class BookTicketsController {
             currentBooking = BookingFactory.createBooking(type, route, numTickets, date);
 
             // Fetch available vehicles
-            List<Vehicle> vehicles = dbVehicleRouteHandler.getAvailableVehiclesByRouteAndType(route.getStartPoint(), route.getEndPoint(), type);
+            List<Vehicle> vehicles = Vehicle.getAvailableVehicles(route.getStartPoint(), route.getEndPoint(), type);
             choiceBox.getItems().clear();
             choiceBox.getItems().addAll(vehicles);
 

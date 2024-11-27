@@ -39,10 +39,6 @@ public class FlightBooking extends Booking {
         return (distance * 10) * numTickets; // Example static price
     }
 
-    @Override
-    public boolean saveToDatabase() {
-        return false;//DatabaseHandler.saveFlightBooking(this);
-    }
 
     // Getters and Setters for new attributes
     public String getAirlineCompany() {

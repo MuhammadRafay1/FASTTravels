@@ -2,6 +2,7 @@ package application;
 
 import java.io.IOException;
 
+import Classes.Admin;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -48,18 +49,26 @@ public class adminManageVehicle {
     private TextField vehicletypeTB;
     
     private DatabaseHandler dbController = new DatabaseHandler();
-    private VehicleRouteDatabaseHandler dbVehicleRouteController = new VehicleRouteDatabaseHandler();
+    private userDatabaseHandler dbUserHandler = new userDatabaseHandler();
+    private Admin admin = dbUserHandler.getAdminById(1);
+
     // Load available routes in the text area
     @FXML
     public void initialize() {
         // Fetch and display available routes when the page loads
-        String allRoutes = dbVehicleRouteController.getAllRoutes();
+        String allRoutes = admin.getAllRoutes();
+        allRoutesTA.setText(allRoutes);
+    }
+
+    // Save a new vehicle
+    private void loadRoutes() {
+        String allRoutes = admin.getAllRoutes();
         allRoutesTA.setText(allRoutes);
     }
 
     // Save a new vehicle
     @FXML
-    public void saveVehicle(ActionEvent event) throws IOException {
+    public void saveVehicle(ActionEvent event) {
         String companyName = companyNameTB.getText();
         String routeID = routeIDforVehicleTB.getText();
         String seatingCapacity = seatingCapacityTB.getText();
@@ -70,7 +79,7 @@ public class adminManageVehicle {
             return;
         }
 
-        boolean success = dbVehicleRouteController.addVehicle(companyName, routeID, seatingCapacity, vehicleType);
+        boolean success = admin.addVehicle(companyName, routeID, seatingCapacity, vehicleType);
 
         if (success) {
             showAlert("Success", "Vehicle added successfully.");
@@ -81,7 +90,7 @@ public class adminManageVehicle {
 
     // Delete a vehicle
     @FXML
-    public void deleteVehicle(ActionEvent event) throws IOException {
+    public void deleteVehicle(ActionEvent event) {
         String vehicleID = vehicleIDtoDeleteTB.getText();
 
         if (vehicleID.isEmpty()) {
@@ -89,7 +98,7 @@ public class adminManageVehicle {
             return;
         }
 
-        boolean success = dbVehicleRouteController.deleteVehicle(vehicleID);
+        boolean success = admin.deleteVehicle(vehicleID);
 
         if (success) {
             showAlert("Success", "Vehicle deleted successfully.");
@@ -97,16 +106,13 @@ public class adminManageVehicle {
             showAlert("Error", "Failed to delete the vehicle. Please try again.");
         }
     }
-    
 
-    // Navigate back to the menu
+    // Navigate back to the admin menu
     @FXML
-    public void backToMenu(ActionEvent event) throws IOException {
-    	try {
-            // Load the RegisterPage.fxml
+    public void backToMenu(ActionEvent event) {
+        try {
+            // Load the Admin Dashboard
             AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminDashboard.fxml"));
-            
-            // Get the current stage and set the new scene
             Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
@@ -114,7 +120,7 @@ public class adminManageVehicle {
         } catch (IOException e) {
             System.err.println("Error loading AdminDashboard.fxml: " + e.getMessage());
             e.printStackTrace();
-        }  // Code to navigate back to the admin dashboard or menu
+        }
     }
 
     // Utility method to show alerts

@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import Classes.Admin;
 import Classes.Complaint;
 import Classes.User;
 import javafx.scene.control.Alert;
@@ -17,7 +18,7 @@ import javafx.scene.control.Alert;
 public class userDatabaseHandler extends DatabaseHandler {
 	
 	
-    public void resolveComplaints(int complaintID, boolean isSelected) {
+    public boolean resolveComplaints(int complaintID, boolean isSelected) {
     	String query = "UPDATE Complaint SET status = 'Resolved' WHERE complaintID = ? AND status = 'Submitted'";
 
         try (Connection conn = connect();
@@ -29,6 +30,7 @@ public class userDatabaseHandler extends DatabaseHandler {
             if (rowsAffected > 0) {
                 showAlert( "Success", "Complaint marked as resolved.");
                 loadComplaints(isSelected);
+                return true;
             } else {
                 showAlert( "No Changes", "No unresolved complaint found with the given ID.");
             }
@@ -37,6 +39,7 @@ public class userDatabaseHandler extends DatabaseHandler {
             e.printStackTrace();
             showAlert("Database Error", "Failed to update complaint status.");
         }
+		return false;
     }
  // Insert a new user into the database (either admin or customer based on isAdmin)
     public boolean registerUser(User user) {
@@ -230,6 +233,16 @@ public class userDatabaseHandler extends DatabaseHandler {
         }
         return false;
     }
+    
+    public void increaseLoyaltyPoints(int userID, int points) throws SQLException {
+        String query = "UPDATE customeruser SET loyaltyPoints = loyaltyPoints + ? WHERE userID = ?";
+        try (Connection conn = connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, points);  // Points to add
+            stmt.setInt(2, userID);   // User ID to update
+            stmt.executeUpdate();
+        }
+    }
 
     public int getLoyaltyPoints(int userID) {
    	 String query = "SELECT loyaltyPoints FROM customeruser WHERE userID = ?";
@@ -373,5 +386,55 @@ public class userDatabaseHandler extends DatabaseHandler {
 	    }
 	    return false;
 	}
+   
+   public Admin getAdminById(int userID) {
+       String query = "SELECT * FROM User WHERE userID = ?";
+       try (Connection connection = connect();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+           preparedStatement.setInt(1, userID);
+           ResultSet resultSet = preparedStatement.executeQuery();
+
+           if (resultSet.next()) {
+               String name = resultSet.getString("name");
+               String email = resultSet.getString("email");
+               String phone = resultSet.getString("phone");
+               String cnic = resultSet.getString("cnic");
+               String password = resultSet.getString("password");
+
+               // Create and return the Admin object
+               return new Admin(userID, name, email, phone, cnic, password);
+           } else {
+               System.out.println("Admin with ID " + userID + " not found.");
+           }
+       } catch (SQLException e) {
+           System.err.println("Error fetching Admin: " + e.getMessage());
+       }
+       return null;
+   }
+   
+   public double getWalletBalance(int userID) throws SQLException {
+       String query = "SELECT walletAmount FROM userwallet WHERE userID = ?";
+       try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+           stmt.setInt(1, userID);
+           ResultSet rs = stmt.executeQuery();
+           if (rs.next()) {
+               return rs.getDouble("walletAmount");
+           }
+       }
+       return 0;
+   }
+
+   // Update the wallet balance for a given user
+   public void updateWalletBalance(int userID, double newBalance) throws SQLException {
+       String query = "UPDATE userwallet SET walletAmount = ? WHERE userID = ?";
+       try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+           stmt.setDouble(1, newBalance);
+           stmt.setInt(2, userID);
+           stmt.executeUpdate();
+       }
+   }
    
 }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 
+import databaseControllers.*;
+import databaseControllers.userDatabaseHandler;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +24,10 @@ public abstract class Booking {
     protected int numTickets;
     protected int vehicleID;
     protected Route route;
-
+    
+    private userDatabaseHandler dbHandler = new userDatabaseHandler();
+	 private VehicleRouteDatabaseHandler dbVRHandler = new VehicleRouteDatabaseHandler();
+	 private BookingDatabaseHandler dbBookingHandler = new BookingDatabaseHandler();
     // Constructor
     public Booking(int bookingID, int userID, LocalDate date, String origin, String destination, double fare, int numTickets, int vehicleID) {
         this.bookingID = bookingID;
@@ -129,5 +134,7 @@ public abstract class Booking {
     public abstract double calculatePrice(double distance, int numTickets); // Each subclass implements specific pricing
 
     // Abstract method to save the booking to the database
-    public abstract boolean saveToDatabase();
+    public int insertToBooking(int vehicleId, LocalDate date, int numTickets, String source, String destination, String bookingType, int userId, double fare) {
+    	return dbBookingHandler.insertBooking(vehicleId,date,numTickets,source,destination,bookingType,userId,fare);
+    }
 }

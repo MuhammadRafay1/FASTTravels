@@ -108,7 +108,7 @@ public class VehicleRouteDatabaseHandler extends DatabaseHandler{
         return vehicles;
     }
     
-    public void insertRoutes(String startPoint, String endPoint, double distance) {
+    public boolean insertRoutes(String startPoint, String endPoint, double distance) {
         String query = "INSERT INTO Route (startPoint, endPoint, distance) VALUES (?, ?, ?)";
         try (Connection conn = connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -120,16 +120,19 @@ public class VehicleRouteDatabaseHandler extends DatabaseHandler{
             // Check if the insertion was successful
             if (stmt.executeUpdate() > 0) {
                 showAlert("Route added", "Successfully");
+                return true;
             } else {
                 showAlert("Route addition failed", "No rows affected.");
+                return false;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     
-    public void removeRoute(int routeID) {
+    public boolean removeRoute(int routeID) {
     	 String query = "DELETE FROM Route WHERE routeID = ?";
          try (Connection conn = connect();
               PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -139,12 +142,15 @@ public class VehicleRouteDatabaseHandler extends DatabaseHandler{
              int rowsAffected = stmt.executeUpdate();
              if (rowsAffected > 0) {
                  showAlert("Route deleted successfully.","Deleted");
+                 return true;
              } else {
                  showAlert("Error:", "No route found with ID " + routeID);
+                 return false;
              }
          } catch (SQLException e) {
 			e.printStackTrace();
 		}
+         return false;
     }
     
     public String getAllRoutes() {

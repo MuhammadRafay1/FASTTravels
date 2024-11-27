@@ -1,7 +1,8 @@
 package Classes;
 
+import java.sql.SQLException;
 import java.util.regex.Pattern;
-
+import databaseControllers.*;
 public class User {
     protected int userID;
     protected String name;
@@ -10,7 +11,7 @@ public class User {
     protected String cnic;
     protected String phone;
     protected String type;
-
+    private userDatabaseHandler userDbHandler = new userDatabaseHandler();
     public User(int userID, String name, String email, String password, String cnic, String phone, String type) {
         this.userID = userID;
         this.name = name;
@@ -31,7 +32,12 @@ public class User {
     
     public User() {}
 
-    // Login method
+    public User(int userID2) {
+    	this.userID = userID2;
+		// TODO Auto-generated constructor stub
+	}
+
+	// Login method
     public void login() {
         System.out.println(name + " logged in.");
     }
@@ -68,9 +74,7 @@ public class User {
     }
 
     public void setEmail(String email) {
-        if (!isValidEmail(email)) {
-            throw new IllegalArgumentException("Invalid email format.");
-        }
+
         this.email = email;
     }
 
@@ -79,9 +83,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        if (!isValidPassword(password)) {
-            throw new IllegalArgumentException("Password must be at least 8 characters, include one uppercase, one lowercase, and one number.");
-        }
+
         this.password = password;
     }
 
@@ -90,9 +92,7 @@ public class User {
     }
 
     public void setCnic(String cnic) {
-        if (!isValidCnic(cnic)) {
-            throw new IllegalArgumentException("Invalid CNIC format. CNIC must contain 13 digits.");
-        }
+
         this.cnic = cnic;
     }
 
@@ -101,9 +101,7 @@ public class User {
     }
 
     public void setPhone(String phone) {
-        if (!isValidPhone(phone)) {
-            throw new IllegalArgumentException("Invalid phone number format. Must start with +92 or 03 and be 11 digits long.");
-        }
+
         this.phone = phone;
     }
 
@@ -129,5 +127,32 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public User getUserByID(int userID) {
+		return userDbHandler.getUserByID(userID);
+    	
+    }
+    
+    public boolean updateUser(User user) {
+    	return userDbHandler.updateUser(user);
+    }
+    
+    public double getWalletBalance() throws SQLException {
+        return userDbHandler.getWalletBalance(this.userID);
+    }
+
+    // Update the wallet balance for this user
+    public void updateWalletBalance(double newBalance) throws SQLException {
+    	userDbHandler.updateWalletBalance(this.userID, newBalance);
+    }
+    
+    public int getLoyaltyPoints() throws SQLException {
+        return userDbHandler.getLoyaltyPoints(this.userID);
+    }
+
+    // Increase loyalty points for the user
+    public void increaseLoyaltyPoints(int points) throws SQLException {
+    	userDbHandler.increaseLoyaltyPoints(this.userID, points);
     }
 }

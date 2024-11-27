@@ -37,10 +37,9 @@
       </Label>
       <MenuButton fx:id="DPChoice" layoutX="208.0" layoutY="129.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="190.0" text="Diet Preferences">
         <items>
-          <MenuItem mnemonicParsing="false" text="Action 1" />
-          <MenuItem mnemonicParsing="false" text="Action 2" />
-            <MenuItem mnemonicParsing="false" text="Unspecified Action" />
-            <MenuItem mnemonicParsing="false" text="Unspecified Action" />
+          <MenuItem mnemonicParsing="false" text="Lactose Intollerent" />
+          <MenuItem mnemonicParsing="false" text="Vegeterarian" />
+            <MenuItem mnemonicParsing="false" text="Gluten Free" />
         </items>
       </MenuButton>
       <CheckBox fx:id="TickBoxHandicapped" layoutX="209.0" layoutY="198.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="197.0" text="Tick for Handicapped">

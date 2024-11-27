@@ -64,7 +64,7 @@ public class viewModifyProfileController {
         user.setCnic(cnicTb.getText());
         user.setPhone(pNumTb.getText());
 
-        boolean isUpdated = userdbHandler.updateUser(user);
+        boolean isUpdated = user.updateUser(user);
         if (isUpdated) {
             showAlert("Success", "User data updated successfully!");
         } else {
@@ -83,6 +83,20 @@ public class viewModifyProfileController {
             stage.show();
         } catch (IOException e) {
             System.err.println("Error loading mainDashboard.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
+    public void goToAdminDashboard(ActionEvent event) throws IOException {
+        try {
+            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminDashboard.fxml"));
+            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Error loading AdminDashboard.fxml: " + e.getMessage());
             e.printStackTrace();
         }
     }

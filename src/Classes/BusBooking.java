@@ -35,11 +35,6 @@ public class BusBooking extends Booking {
         return (distance * 4) * numTickets; // Example static price calculation
     }
 
-    @Override
-    public boolean saveToDatabase() {
-        // Implement saving logic, for now, it returns false
-        return false; // Assuming you have a method in DatabaseHandler
-    }
 
     // Getters and Setters for new attributes
     public String getBusCompany() {

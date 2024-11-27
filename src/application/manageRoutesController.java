@@ -6,11 +6,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
+
+import Classes.Admin;
 import databaseControllers.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -40,15 +43,15 @@ public class manageRoutesController {
 	    @FXML
 	    private Button saveRouteButton;
 	
-	    DatabaseHandler dbHandler = new DatabaseHandler();
-	    VehicleRouteDatabaseHandler dbVehicleRouteHandler = new VehicleRouteDatabaseHandler();
+	    userDatabaseHandler dbUserHandler = new userDatabaseHandler();
+	    private Admin admin = dbUserHandler.getAdminById(1);
 	    
 	    public void initialize() {
 	        populateAllRoutes(); // Populate the text area when the scene loads
 	    }
 	   
 	    @FXML
-	    void saveRoute(ActionEvent event) throws IOException, SQLException{
+	    public void saveRoute(ActionEvent event) {
 	        String startPoint = routeStartPointTB.getText();
 	        String endPoint = routeEndPointTB.getText();
 	        String distanceText = routeDistanceTB.getText();
@@ -60,64 +63,56 @@ public class manageRoutesController {
 
 	        try {
 	            double distance = Double.parseDouble(distanceText);
-	            dbVehicleRouteHandler.insertRoutes(startPoint, endPoint, distance);
-	            // Insert route into the database
-	            
+	            boolean success = admin.addRoute(startPoint, endPoint, distance);
+
+	            if (success) {
+	                showAlert("Success", "Route saved successfully!");
+	                populateAllRoutes(); // Refresh the routes display
+	            } else {
+	                showAlert("Error", "Failed to save the route. Please try again.");
+	            }
 	        } catch (NumberFormatException e) {
 	            showAlert("Error", "Distance must be a valid number!");
 	        }
 	    }
 	    
 	    @FXML
-	    void populateAllRoutes() {
-	        String query = "SELECT * FROM Route";
-	        try (Connection conn = dbHandler.connect();
-	             Statement stmt = conn.createStatement();
-	             ResultSet rs = stmt.executeQuery(query)) {
-
-	            StringBuilder allRoutes = new StringBuilder("All Routes:\n");
-	            while (rs.next()) {
-	                int id = rs.getInt("routeID");
-	                String startPoint = rs.getString("startPoint");
-	                String endPoint = rs.getString("endPoint");
-	                double distance = rs.getDouble("distance");
-
-	                allRoutes.append(String.format("Route ID: %d, From: %s, To: %s, Distance: %.2f km\n",
-	                        id, startPoint, endPoint, distance));
-	            }
-
-	            allRoutesTextArea.setText(allRoutes.toString());
-	        } catch (SQLException e) {
-	            allRoutesTextArea.setText("Error: Unable to retrieve routes. " + e.getMessage());
-	        }
+	    public void populateAllRoutes() {
+	        String allRoutes = admin.getAllRoutes();
+	        allRoutesTextArea.setText(allRoutes);
 	    }
-	    
+
+	    // Delete a route
 	    @FXML
-	    void deleteRoute(ActionEvent event) {
+	    public void deleteRoute(ActionEvent event) {
 	        String routeIdText = routeIDtoDeleteTB.getText();
 
 	        if (routeIdText.isEmpty()) {
-	            allRoutesTextArea.setText("Error: Enter a route ID to delete.");
+	            showAlert("Error", "Route ID must be entered to delete a route.");
 	            return;
 	        }
 
 	        try {
 	            int routeID = Integer.parseInt(routeIdText);
-	            dbVehicleRouteHandler.removeRoute(routeID);
-	            populateAllRoutes();
-	            
-	        }  catch (NumberFormatException e) {
-	            allRoutesTextArea.setText("Error: Route ID must be a valid number!");
+	            boolean success = admin.deleteRoute(routeID);
+
+	            if (success) {
+	                showAlert("Success", "Route deleted successfully!");
+	                populateAllRoutes(); // Refresh the routes display
+	            } else {
+	                showAlert("Error", "Failed to delete the route. Please try again.");
+	            }
+	        } catch (NumberFormatException e) {
+	            showAlert("Error", "Route ID must be a valid number!");
 	        }
 	    }
-	    
+
+	    // Navigate back to the main dashboard
 	    @FXML
-	    public void goToMainDashboard(ActionEvent event) throws IOException {
+	    public void goToMainDashboard(ActionEvent event) {
 	        try {
-	            // Load the RegisterPage.fxml
+	            // Load the AdminDashboard.fxml
 	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminDashboard.fxml"));
-	            
-	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
 	            Scene scene = new Scene(root);
 	            stage.setScene(scene);
@@ -127,10 +122,12 @@ public class manageRoutesController {
 	            e.printStackTrace();
 	        }
 	    }
-	 
-	 private void showAlert(String title, String message) {
-	        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+	    // Utility method to show alerts
+	    private void showAlert(String title, String message) {
+	        Alert alert = new Alert(AlertType.INFORMATION);
 	        alert.setTitle(title);
+	        alert.setHeaderText(null);
 	        alert.setContentText(message);
 	        alert.showAndWait();
 	    }

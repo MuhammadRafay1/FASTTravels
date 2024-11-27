@@ -10,6 +10,6 @@ public class CashPayment extends Payment {
  public boolean processPayment() {
      System.out.println("Processing cash payment of $" + amount);
      // Additional logic for handling cash payments, if necessary
-	return false;
+	return true;
  }
 }

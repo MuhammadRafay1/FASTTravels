@@ -47,6 +47,6 @@
          </image>
       </ImageView>
       <Button fx:id="prooceedbutton" layoutX="272.0" layoutY="362.0" mnemonicParsing="false" onAction="#proceedToCardPayment" prefHeight="38.0" prefWidth="130.0" style="-fx-background-color: #03fc07;" text="Proceed" />
-      <Button fx:id="backbutton" layoutX="624.0" layoutY="20.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="112.0" style="-fx-background-color: #fc0303;" text="Back to Menu" />
+      <Button fx:id="backbutton" layoutX="624.0" layoutY="20.0" mnemonicParsing="false" onAction="#goToMainDashboard" prefHeight="38.0" prefWidth="112.0" style="-fx-background-color: #fc0303;" text="Back to Menu" />
    </children>
 </AnchorPane>

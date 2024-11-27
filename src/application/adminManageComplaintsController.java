@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.io.IOException;
 import java.sql.*;
 import databaseControllers.userDatabaseHandler;
+import Classes.Admin;
 import Classes.Complaint;
 public class adminManageComplaintsController {
 	
@@ -31,6 +32,7 @@ public class adminManageComplaintsController {
 	    private CheckBox showAllCB;
 	    
 	    userDatabaseHandler dbUserHandler = new userDatabaseHandler();
+	    private Admin admin = dbUserHandler.getAdminById(1);
 	   // adminDatabaseController adminDbHanlder = new adminDatabaseController();
 	   
 	    @FXML
@@ -45,13 +47,10 @@ public class adminManageComplaintsController {
 	     * @param showAll If true, displays all complaints. Otherwise, only displays "Submitted" complaints.
 	     */
 	    private void loadComplaints(boolean showAll) {
-	    	
-	    	String text;
-	    	text = dbUserHandler.loadComplaints(showAll); 
-	    	complaintsTextArea.setText(text);
+	        String complaints = admin.loadComplaints(showAll);
+	        complaintsTextArea.setText(complaints);
 	    }
 
-	    
 	    @FXML
 	    public void markComplaintAsResolved(ActionEvent event) throws IOException {
 	        String complaintIDText = complaintIDToResolveTB.getText();
@@ -69,16 +68,19 @@ public class adminManageComplaintsController {
 	            return;
 	        }
 
-	        dbUserHandler.resolveComplaints(complaintID,showAllCB.isSelected());
+	        boolean success = admin.resolveComplaint(complaintID,showAllCB.isSelected());
+	        if (success) {
+	            showAlert(Alert.AlertType.INFORMATION, "Success", "Complaint resolved successfully.");
+	            loadComplaints(showAllCB.isSelected());
+	        } else {
+	            showAlert(Alert.AlertType.ERROR, "Error", "Failed to resolve the complaint.");
+	        }
 	    }
 
 	    @FXML
 	    public void goToMainDashboard(ActionEvent event) throws IOException {
 	        try {
-	            // Load the RegisterPage.fxml
 	            AnchorPane root = FXMLLoader.load(getClass().getResource("/fxmlFiles/AdminDashboard.fxml"));
-	            
-	            // Get the current stage and set the new scene
 	            Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
 	            Scene scene = new Scene(root);
 	            stage.setScene(scene);
@@ -89,7 +91,6 @@ public class adminManageComplaintsController {
 	        }
 	    }
 
-	    
 	    private void showAlert(Alert.AlertType alertType, String title, String message) {
 	        Alert alert = new Alert(alertType);
 	        alert.setTitle(title);
@@ -97,5 +98,4 @@ public class adminManageComplaintsController {
 	        alert.setContentText(message);
 	        alert.showAndWait();
 	    }
-
 }
